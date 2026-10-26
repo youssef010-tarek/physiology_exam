@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Physiology Lecture 1 – Timed Exam</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14213d;--muted:#5b6579;--line:#d9dde5;--accent:#1f4e9c;--accent-ink:#fff;--soft:#e6edf8;--ok:#1b7a4b;--okbg:#e3f4ea;--bad:#b3261e;--badbg:#fbe9e7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--card:#1a2130;--ink:#e8ecf4;--muted:#9aa5ba;--line:#2e384c;--accent:#6c9cf0;--accent-ink:#0c1424;--soft:#22304a;--ok:#6fd3a0;--okbg:#17352a;--bad:#ff8f86;--badbg:#3a1f1d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10151f;--card:#1a2130;--ink:#e8ecf4;--muted:#9aa5ba;--line:#2e384c;--accent:#6c9cf0;--accent-ink:#0c1424;--soft:#22304a;--ok:#6fd3a0;--okbg:#17352a;--bad:#ff8f86;--badbg:#3a1f1d;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font:700 28px/1.2 Georgia,"Times New Roman",serif;margin:8px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:0 0 14px}
+ul.rules{padding-left:20px;margin:8px 0 18px}ul.rules li{margin:6px 0}
+button{font:600 15px system-ui,sans-serif;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:8px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:focus-visible,input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+header.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px}
+.bar .row{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.timer{font:700 24px/1 ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.grow{flex:1;color:var(--muted);font-size:14px}
+#confirm{max-width:720px;margin:8px auto 0;padding:10px 12px;background:var(--soft);border-radius:8px;display:none;gap:10px;align-items:center;flex-wrap:wrap}
+#confirm.on{display:flex}#confirm span{flex:1;min-width:200px}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav a{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--ink);font-size:14px;background:var(--card)}
+.nav a.done{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.q h2{font:600 18px/1.4 Georgia,"Times New Roman",serif;margin:0 0 12px}
+.q .n{color:var(--muted);font:600 13px system-ui,sans-serif;margin-bottom:4px}
+label.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin:8px 0;cursor:pointer}
+label.opt:has(input:checked){border-color:var(--accent);background:var(--soft)}
+label.opt input{margin-top:5px;accent-color:var(--accent)}
+.score{font:700 52px/1 Georgia,serif;margin:6px 0}
+.rev .opt{cursor:default}
+.rev .ok{border-color:var(--ok);background:var(--okbg)}
+.rev .bad{border-color:var(--bad);background:var(--badbg)}
+.tag{font-size:13px;font-weight:700;margin-left:auto;white-space:nowrap}
+.verdict{font-size:14px;font-weight:700;margin-bottom:6px}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}
+.hide{display:none}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+<div id="start"><main>
+<h1>Physiology Lecture 1: Timed Exam</h1>
+<div class="card">
+<ul class="rules">
+<li>20 multiple-choice questions, one correct answer each.</li>
+<li>You have 15 minutes. The timer starts when you press Start.</li>
+<li>Answers are not shown while you work. You can change any choice until you submit.</li>
+<li>When time runs out, the exam submits itself. Unanswered questions count as wrong.</li>
+<li>After you submit, you see your score and the correct answers.</li>
+</ul>
+<button id="go">Start exam</button>
+</div></main></div>
+
+<div id="exam" class="hide">
+<header class="bar"><div class="row">
+<div class="timer" id="t">15:00</div>
+<div class="grow" id="cnt">0 of 20 answered</div>
+<button id="sub">Submit</button>
+</div>
+<div id="confirm"><span id="cmsg"></span><button id="yes">Submit now</button><button class="ghost" id="no">Keep working</button></div>
+</header>
+<main><div class="card"><div class="nav" id="nav"></div></div><div id="qs"></div></main>
+</div>
+
+<div id="res" class="hide"><main></main></div>
+
+<script>
+const Q=[
+["Which statement best defines physiology as presented in the lecture?",["The study of the structure and location of body organs","The study of how organs perform their vital functions","The study of the causes and treatment of diseases","The study of the chemical composition of food"],1],
+["Which sequence correctly orders the levels of body organization from simplest to most complex?",["Molecular, cell, tissue, organ, system, total organism","Molecular, tissue, cell, organ, system, total organism","Cell, molecular, tissue, system, organ, total organism","Molecular, cell, organ, tissue, system, total organism"],0],
+["Which statement correctly distinguishes a tissue from an organ?",["A tissue is made of several organs, while an organ is made of cells only","A tissue is the smallest living unit, while an organ is a group of cells","A tissue is a group of cells working together, while an organ combines several different tissues for a particular function","A tissue performs a specific function for the whole body, while an organ is a group of molecules"],2],
+["The stomach, intestines, and liver cooperate to digest food. At which level of organization does this cooperation occur?",["Tissue level","Organ level","Cellular level","System level"],3],
+["According to the lecture, water is classified as a:",["Macronutrient because the body needs it in large amounts","Macronutrient because it yields energy","Micronutrient","Lipid derivative"],2],
+["Which of the following is NOT classified as a micronutrient?",["Carbohydrates","Mineral salts","Vitamins","Water"],0],
+["Which statement correctly contrasts macronutrients with micronutrients?",["Macronutrients are inorganic; micronutrients are organic energy sources","Both provide the majority of metabolic energy","Macronutrients are trace elements; micronutrients are carbohydrates","Macronutrients are organic and energy-yielding; micronutrients are needed in very small quantities"],3],
+["Which organ depends on glucose as its ONLY source of energy?",["Brain","Skeletal muscle","Liver","Bone"],0],
+["Which function is NOT attributed to carbohydrates in the lecture?",["Supplying energy to muscles and the CNS","Forming hormones, enzymes, and antibodies","Being part of nucleic acids","Contributing to cell membrane structure"],1],
+["Which element is present in proteins but NOT in carbohydrates or lipids (which contain only C, H, and O)?",["Hydrogen","Oxygen","Nitrogen","Carbon"],2],
+["Which sequence correctly describes protein formation?",["Proteins, then polypeptides, then amino acids","Amino acids, then proteins, then polypeptides","Amino acids joined by peptide bonds form polypeptides, which form proteins","Polypeptides, then amino acids, then proteins"],2],
+["Based on the lecture’s classification, what is the total number of amino acids (essential plus nonessential)?",["11","18","22","20"],3],
+["Why are essential amino acids called “essential”?",["The body must obtain them from nutritional sources","The body forms them in large amounts","They are the only ones that form peptide bonds","They are the only ones that contain nitrogen"],0],
+["Which pair gives examples of nonessential amino acids as given in the lecture?",["Alanine and Arginine","Lysine and Methionine","Arginine and Cystine","Alanine and Cystine"],1],
+["Which of the following is NOT listed as a body structure formed by proteins?",["Nails","Ligaments","Myelin sheath","Muscle"],2],
+["Fatty acids and glycerol, the components of lipids, are joined by which type of bond?",["Ester bond","Peptide bond","Ionic bond","Disulfide bond"],0],
+["Which statement about lipids and lipid derivatives is correct?",["They only store energy and have no structural role","They are found only in neurons","They are structural components of every cell and also serve as vitamins and hormones","They are inorganic nutrients required in trace amounts"],2],
+["Why must most vitamins be obtained from the diet?",["They are inorganic and cannot be absorbed otherwise","The body is unable to manufacture most of the vitamins it needs","They are made only in the brain","They are produced only from glucose"],1],
+["Which group contains ONLY water-soluble vitamins?",["C, B1, B2, B6, B12, and folic acid","C, K, B1, and B12","A, D, E, and K","B6, D, folic acid, and E"],0],
+["Which elements make up much of the chemical composition of bones, according to the lecture?",["Sodium, potassium, and chloride","Sodium, calcium, and nitrogen","Potassium, phosphorus, and sulfur","Calcium, phosphorus, and oxygen"],3]
+];
+const L=["A","B","C","D"],TOTAL=900000;
+const $=s=>document.querySelector(s);
+let ans,deadline,timer,finished;
+function show(id){["start","exam","res"].forEach(x=>$("#"+x).classList.toggle("hide",x!==id));scrollTo(0,0)}
+function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function start(){
+  for(let k=Q.length-1;k>0;k--){const r=Math.floor(Math.random()*(k+1));[Q[k],Q[r]]=[Q[r],Q[k]]}
+  ans=Q.map(()=>null);finished=false;
+  $("#nav").innerHTML=Q.map((_,i)=>`<a href="#q${i}" id="nv${i}">${i+1}</a>`).join("");
+  $("#qs").innerHTML=Q.map((q,i)=>`<section class="card q" id="q${i}"><div class="n">Question ${i+1} of ${Q.length}</div><h2>${q[0]}</h2>`+
+    q[1].map((o,j)=>`<label class="opt"><input type="radio" name="r${i}" value="${j}"><span>${L[j]}. ${o}</span></label>`).join("")+`</section>`).join("");
+  $("#qs").onchange=e=>{const m=/^r(\d+)$/.exec(e.target.name);if(!m)return;ans[+m[1]]=+e.target.value;upd()};
+  $("#confirm").classList.remove("on");
+  deadline=Date.now()+TOTAL;upd();tick();
+  clearInterval(timer);timer=setInterval(tick,250);show("exam");
+}
+function upd(){
+  const n=ans.filter(a=>a!==null).length;
+  $("#cnt").textContent=n+" of "+Q.length+" answered";
+  ans.forEach((a,i)=>$("#nv"+i).classList.toggle("done",a!==null));
+}
+function tick(){
+  if(finished)return;
+  const left=deadline-Date.now();
+  $("#t").textContent=fmt(left);
+  $("#t").classList.toggle("low",left<=60000);
+  if(left<=0)finish(true);
+}
+function ask(){
+  const un=ans.filter(a=>a===null).length;
+  $("#cmsg").textContent=un?`${un} unanswered question${un>1?"s":""} will count as wrong. Submit now?`:"Submit your exam now? You can’t change answers afterwards.";
+  $("#confirm").classList.add("on");
+}
+function finish(auto){
+  if(finished)return;finished=true;clearInterval(timer);
+  let score=0;
+  const rev=Q.map((q,i)=>{
+    const a=ans[i],ok=a===q[2];if(ok)score++;
+    return `<section class="card q rev"><div class="n">Question ${i+1}</div><div class="verdict ${ok?"ok":"bad"}">${ok?"Correct":a===null?"Not answered (counted wrong)":"Wrong"}</div><h2>${q[0]}</h2>`+
+    q[1].map((o,j)=>{
+      const c=j===q[2]?"ok":(j===a?"bad":"");
+      const t=j===q[2]?"Correct answer":(j===a?"Your answer":"");
+      return `<div class="opt ${c}"><span>${L[j]}. ${o}</span><span class="tag">${t}</span></div>`}).join("")+`</section>`;
+  }).join("");
+  const pct=Math.round(score/Q.length*100);
+  const used=fmt(Math.min(TOTAL,TOTAL-(deadline-Date.now())));
+  $("#res main").innerHTML=`<h1>Results</h1><div class="card"><div class="score">${score} / ${Q.length}</div><div>${pct}% correct · ${Q.length-score} wrong or unanswered</div><p style="color:var(--muted);margin:10px 0 14px">${auto?"Time ran out, so the exam was submitted automatically.":"Submitted with "+fmt(deadline-Date.now())+" left."}</p><button id="again">Take it again</button></div>`+rev;
+  $("#again").onclick=start;
+  show("res");
+}
+$("#go").onclick=start;
+$("#sub").onclick=ask;
+$("#no").onclick=()=>$("#confirm").classList.remove("on");
+$("#yes").onclick=()=>finish(false);
+</script>
+</body>
+</html>
