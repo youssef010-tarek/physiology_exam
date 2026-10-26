@@ -132,6 +132,7 @@ function ask(){
 }
 function finish(auto){
   if(finished)return;finished=true;clearInterval(timer);
+  try{window.goatcounter&&goatcounter.count({path:"exam-finished",event:true})}catch(e){}
   let score=0;
   const rev=Q.map((q,i)=>{
     const a=ans[i],ok=a===q[2];if(ok)score++;
